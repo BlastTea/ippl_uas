@@ -115,4 +115,4 @@ def testRefreshInvalidBody():
         print("TC-REFRESH-005, Success")
         return
 
-    print("TC-REFRESH-005, Failed : ", body("error", "Unknown error"))
+    print("TC-REFRESH-005, Failed : ", body.get("error", "Unknown error"))

@@ -13,6 +13,7 @@ from .http_client import post_json
 ACCESS_TOKEN = None
 REFRESH_TOKEN = None
 
+
 def login(username: str, password: str) -> Tuple[int, Dict[str, Any]]:
     """Send login request and return (status_code, response_dict)."""
 
@@ -99,4 +100,15 @@ def testLoginInvalidBody():
         print("TC-LOGIN-005, Success")
         return
 
-    print("TC-LOGIN-005, Failed : ", body("error", "Unknown error"))
+    print("TC-LOGIN-005, Failed : ", body.get("error", "Unknown error"))
+
+
+def testLoginInvalidType():
+    payload = {"username": 123, "password": False}  # type: ignore[dict-item]
+    status, body = post_json("login", payload)
+
+    if status == 400:
+        print("TC-LOGIN-006, Success")
+        return
+
+    print("TC-LOGIN-006, Failed : ", body.get("error", "Unknown error"))
