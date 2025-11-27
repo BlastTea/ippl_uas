@@ -14,3 +14,4 @@ def testFeatureCombination(featureLogin: bool, featureRefresh: bool):
         testRefreshInvalidBody()
         
 testFeatureCombination(True, True)
+testFeatureCombination(True, False)
