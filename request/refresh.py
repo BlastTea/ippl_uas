@@ -109,3 +109,12 @@ def testRefreshReuse():
         return
 
     print("TC-REFRESH-004, Failed : ", body.get("error", "Unknown error"))
+    
+def testRefreshInvalidBody():
+    status, body = post_json("token/refresh", {})
+
+    if status == 400:
+        print("TC-REFRESH-005, Success")
+        return
+
+    print("TC-REFRESH-005, Failed : ", body("error", "Unknown error"))
