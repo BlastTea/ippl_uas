@@ -61,7 +61,7 @@ def testLoginSuccess():
 
     print("TC-LOGIN-001, Failed : ", body.get("error", "Unknown error"))
 
-def testLoginInvalidUserOrPass():
+def testLoginInvalidUserAndPass():
     status, body = login("Hello", "World")
 
     if status == 401:
@@ -70,11 +70,33 @@ def testLoginInvalidUserOrPass():
     
     print("TC-LOGIN-002, Failed : ", body.get("error", "Unknown error"))
 
+def testLoginInvalidUser():
+    load_dotenv()
+
+    status, body = login("Hello", os.getenv("PASSWORD_LOGIN"))
+
+    if status == 401:
+        print("TC-LOGIN-003, Success")
+        return
+    
+    print("TC-LOGIN-003, Failed : ", body.get("error", "Unknown error"))
+
+def testLoginInvalidPass():
+    load_dotenv()
+
+    status, body = login(os.getenv("USERNAME_LOGIN"), "World")
+
+    if status == 401:
+        print("TC-LOGIN-004, Success")
+        return
+    
+    print("TC-LOGIN-004, Failed : ", body.get("error", "Unknown error"))
+
 def testLoginInvalidBody():
     status, body = post_json("login", {})
 
     if status == 400:
-        print("TC-LOGIN-003, Success")
+        print("TC-LOGIN-005, Success")
         return
 
-    print("TC-LOGIN-003, Failed : ", body("error", "Unknown error"))
+    print("TC-LOGIN-005, Failed : ", body("error", "Unknown error"))

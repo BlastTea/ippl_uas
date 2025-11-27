@@ -1,10 +1,12 @@
-from request.login import testLoginSuccess, testLoginInvalidUserOrPass, testLoginInvalidBody
+from request.login import testLoginSuccess, testLoginInvalidUserAndPass, testLoginInvalidUser, testLoginInvalidPass, testLoginInvalidBody
 from request.refresh import testRefreshSuccess, testRefreshInvalid, testRefreshProtected, testRefreshReuse, testRefreshInvalidBody
 
 def testFeatureCombination(featureLogin: bool, featureRefresh: bool):
     if featureLogin:
         testLoginSuccess()
-        testLoginInvalidUserOrPass()
+        testLoginInvalidUserAndPass()
+        testLoginInvalidUser()
+        testLoginInvalidPass()
         testLoginInvalidBody()
     if featureRefresh:
         testRefreshSuccess()
@@ -14,4 +16,3 @@ def testFeatureCombination(featureLogin: bool, featureRefresh: bool):
         testRefreshInvalidBody()
         
 testFeatureCombination(True, True)
-testFeatureCombination(True, False)
