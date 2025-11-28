@@ -1,4 +1,4 @@
-"""Reachability testing driver referencing PPT concept."""
+"""Reachability testing"""
 
 from __future__ import annotations
 
