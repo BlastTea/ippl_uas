@@ -1,4 +1,4 @@
-"""Minimal HTTP helper for talking to the sigma backend."""
+"""Minimal HTTP helper for talking to the backend."""
 
 from __future__ import annotations
 

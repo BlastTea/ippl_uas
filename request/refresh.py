@@ -1,4 +1,4 @@
-"""Refresh token helper for the sigma backend."""
+"""Refresh token helper for the backend."""
 
 from __future__ import annotations
 

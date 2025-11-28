@@ -1,4 +1,4 @@
-"""Login helper that wraps the sigma backend login endpoint."""
+"""Login helper that wraps the backend login endpoint."""
 
 from __future__ import annotations
 
