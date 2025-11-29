@@ -1,8 +1,6 @@
-"""Combinatorial testing driver for login and refresh parameters."""
+"""Simple combinatorial matrix for login + refresh."""
 
 from __future__ import annotations
-
-from typing import Any, Callable, Dict, List, Tuple
 
 import os
 
@@ -11,67 +9,39 @@ from request.http_client import post_json
 
 load_dotenv()
 
-USERNAME = os.getenv("USERNAME_LOGIN")
-PASSWORD = os.getenv("PASSWORD_LOGIN")
+USERNAME = os.getenv("USERNAME_LOGIN", "")
+PASSWORD = os.getenv("PASSWORD_LOGIN", "")
 
 
-def _login_call(payload: Dict[str, Any]) -> Tuple[int, Dict[str, Any]]:
-    return post_json("login", payload)
-
-
-def _refresh_call(payload: Dict[str, Any]) -> Tuple[int, Dict[str, Any]]:
-    return post_json("token/refresh", payload)
-
-
-def _refresh_token() -> str:
-    status, body = _login_call({"username": USERNAME, "password": PASSWORD})
-    if status != 200:
-        raise RuntimeError(f"Cannot fetch refresh token: {body}")
-    token = body.get("data", {}).get("refresh_token")
-    if not token:
-        raise RuntimeError("Login response missing refresh_token")
-    return token
-
-
-def _combinations_login() -> List[Tuple[str, Dict[str, Any], int]]:
-    return [
-        ("valid username, valid password", {"username": USERNAME, "password": PASSWORD}, 200),
-        ("valid username, wrong password", {"username": USERNAME, "password": "wrong"}, 401),
-        ("unknown username, valid password", {"username": "unknown", "password": PASSWORD}, 401),
-        ("empty username, valid password", {"username": "", "password": PASSWORD}, 400),
-        ("valid username, empty password", {"username": USERNAME, "password": ""}, 400),
-    ]
-
-
-def _combinations_refresh(token: str) -> List[Tuple[str, Dict[str, Any], int]]:
-    return [
-        ("valid token", {"refresh_token": token}, 200),
-        ("missing token", {}, 400),
-        ("empty token", {"refresh_token": ""}, 400),
-        ("random token", {"refresh_token": "XYZ"}, 401),
-    ]
-
-
-def _run_combinations(title: str, combos: List[Tuple[str, Dict[str, Any], int]], caller: Callable[[Dict[str, Any]], Tuple[int, Dict[str, Any]]]) -> None:
+def run_cases(title: str, endpoint: str, combos: list[tuple[str, dict, int]]) -> None:
     print(f"=== {title} ===")
-    for idx, (desc, payload, expected) in enumerate(combos, 1):
-        status, body = caller(payload)
-        verdict = "PASS" if status == expected else "FAIL"
-        print(f"[{idx}] {desc}")
-        print(f"    status {status} (expected {expected}) => {verdict}")
-        if verdict == "FAIL":
-            print(f"    response: {body}")
+    for desc, payload, expected in combos:
+        status, _ = post_json(endpoint, payload)
+        print(f"{desc}: {status} (expected {expected})")
 
 
 def main() -> None:
-    token = _refresh_token()
+    login_combos = [
+        ("valid user + valid pass", {"username": USERNAME, "password": PASSWORD}, 200),
+        ("valid user + wrong pass", {"username": USERNAME, "password": "wrong"}, 401),
+        ("unknown user + valid pass", {"username": "ghost", "password": PASSWORD}, 401),
+        ("empty user + valid pass", {"username": "", "password": PASSWORD}, 400),
+        ("valid user + empty pass", {"username": USERNAME, "password": ""}, 400),
+    ]
 
-    login_combos = _combinations_login()
-    refresh_combos = _combinations_refresh(token)
+    status, body = post_json("login", {"username": USERNAME, "password": PASSWORD})
+    token = body.get("data", {}).get("refresh_token") if status == 200 else ""
 
-    _run_combinations("LOGIN COMBINATORIAL CASES", login_combos, _login_call)
+    refresh_combos = [
+        ("valid token", {"refresh_token": token}, 200),
+        ("missing token", {}, 400),
+        ("empty token", {"refresh_token": ""}, 400),
+        ("random token", {"refresh_token": "random"}, 401),
+    ]
+
+    run_cases("LOGIN COMBINATIONS", "login", login_combos)
     print()
-    _run_combinations("REFRESH COMBINATORIAL CASES", refresh_combos, _refresh_call)
+    run_cases("REFRESH COMBINATIONS", "token/refresh", refresh_combos)
 
 
 if __name__ == "__main__":

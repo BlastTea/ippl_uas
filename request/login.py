@@ -104,7 +104,7 @@ def testLoginInvalidBody():
 
 
 def testLoginInvalidType():
-    payload = {"username": 123, "password": False}  # type: ignore[dict-item]
+    payload = {"username": 123, "password": False}
     status, body = post_json("login", payload)
 
     if status == 400:

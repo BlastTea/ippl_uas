@@ -1,8 +1,4 @@
-"""Execute equivalence-class tests using existing login/refresh helpers."""
-
-from __future__ import annotations
-
-from typing import Callable, List, Tuple
+"""Equivalence-class runner."""
 
 from request.login import (
     testLoginInvalidBody,
@@ -20,48 +16,39 @@ from request.refresh import (
     testRefreshSuccess,
 )
 
+LOGIN_CASES = [
+    ("L1 valid credentials", testLoginSuccess),
+    ("L2 wrong password", testLoginInvalidPass),
+    ("L3 unknown username", testLoginInvalidUser),
+    ("L4 missing credentials", testLoginInvalidBody),
+    ("L5 invalid data types", testLoginInvalidType),
+    ("Extra wrong user+pass", testLoginInvalidUserAndPass),
+]
 
-TestList = List[Tuple[str, Callable[[], None]]]
-
-
-def run_login_equivalence() -> None:
-    print("=== LOGIN EQUIVALENCE CLASSES ===")
-    tests: TestList = [
-        ("L1 - Valid credentials", testLoginSuccess),
-        ("L2 - Wrong password", testLoginInvalidPass),
-        ("L3 - Unknown username", testLoginInvalidUser),
-        ("L4 - Missing credentials", testLoginInvalidBody),
-        ("L5 - Invalid data types", testLoginInvalidType),
-        ("Extra - Wrong user & password combo", testLoginInvalidUserAndPass),
-    ]
-
-    for label, func in tests:
-        print(f"[{label}]")
-        func()
-        print()
+REFRESH_CASES = [
+    ("R1 valid refresh token", testRefreshSuccess),
+    ("R2 missing refresh token", testRefreshInvalidBody),
+    ("R3 unknown refresh token", testRefreshInvalid),
+    ("R4 reused refresh token", testRefreshReuse),
+    ("Extra protected endpoint", testRefreshProtected),
+]
 
 
-def run_refresh_equivalence() -> None:
-    print("=== REFRESH EQUIVALENCE CLASSES ===")
-    tests: TestList = [
-        ("R1 - Valid refresh token", testRefreshSuccess),
-        ("R2 - Missing refresh token", testRefreshInvalidBody),
-        ("R3 - Unknown refresh token", testRefreshInvalid),
-        ("R4 - Reused/expired refresh token", testRefreshReuse),
-        ("Extra - Protected resource using current access token", testRefreshProtected),
-    ]
+def run_equivalence(login: bool = True, refresh: bool = True) -> None:
+    if login:
+        print("=== LOGIN EQUIVALENCE ===")
+        for label, func in LOGIN_CASES:
+            print(label)
+            func()
+            print()
 
-    for label, func in tests:
-        print(f"[{label}]")
-        func()
-        print()
-
-
-def main() -> None:
-    run_login_equivalence()
-    print()
-    run_refresh_equivalence()
+    if refresh:
+        print("=== REFRESH EQUIVALENCE ===")
+        for label, func in REFRESH_CASES:
+            print(label)
+            func()
+            print()
 
 
 if __name__ == "__main__":
-    main()
+    run_equivalence()
